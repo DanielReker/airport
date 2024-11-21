@@ -1,0 +1,72 @@
+name: airport
+
+services:
+  client:
+    container_name: client
+    build:
+      context: airport-client
+      target: dev
+    volumes:
+      - ./airport-client:/opt/project
+    ports:
+      - 5173:5173
+
+  server:
+    container_name: server
+    restart: always
+    build:
+      context: airport-server
+      target: dev
+    volumes:
+      - ./airport-server:/opt/project
+    ports:
+      - 3000:3000
+    secrets:
+      - db-password
+    depends_on:
+      database:
+        condition: service_healthy
+
+
+  database:
+    container_name: database
+    image: postgres:17.1
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Only for development
+  pgadmin:
+    image: dpage/pgadmin4:8.13
+    container_name: pgadmin
+    restart: always
+    ports:
+      - 8080:80
+    secrets:
+      - db-password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=123
+
+volumes:
+  db-data:
+  pgadmin-data:
+
+
+secrets:
+  db-password:
+    file: secrets/db-password.txt

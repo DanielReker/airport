@@ -1,0 +1,5 @@
+.env*
+!**/.env.local.sample
+secrets/
+**/.idea
+**/node_modules
