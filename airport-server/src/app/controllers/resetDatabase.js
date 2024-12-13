@@ -1,14 +1,13 @@
-const { db, getSchemaSql, getSampleDataSql } = require('../database');
+const { knex, cleanDatabase, createDatabaseSchema, loadSampleData } = require('../database');
 
-
-
-module.exports = async (loadSampleData) => {
+module.exports = async (shouldLoadSampleData) => {
     try {
-        await db.none('DROP SCHEMA domain CASCADE');
-    } catch (err) {
-
+        await cleanDatabase();
+        await createDatabaseSchema();
+        if (shouldLoadSampleData) {
+            await loadSampleData();
+        }
+    } catch (e) {
+        console.log(`Error trying to reset database: ${e.message}`)
     }
-    await db.none(getSchemaSql());
-
-    if (loadSampleData) await db.none(getSampleDataSql());
 };
