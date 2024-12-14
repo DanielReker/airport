@@ -6,8 +6,8 @@ CREATE TABLE domain.airports (
 	iata_code varchar(3) UNIQUE CHECK (iata_code ~ '[A-Z]{3}'),
 	airport_name text,
 	address text,
-	lat double precision,
-	lon double precision
+	latitude double precision,
+	longitude double precision
 );
 CREATE INDEX ON domain.airports (airport_name);
 
@@ -47,13 +47,13 @@ CREATE INDEX ON domain.personnel (salary);
 
 CREATE TABLE domain.routes (
 	route_id serial PRIMARY KEY,
-	from_airport_id varchar(4) NOT NULL REFERENCES domain.airports,
-	to_airport_id varchar(4) NOT NULL REFERENCES domain.airports,
+	from_airport_icao varchar(4) NOT NULL REFERENCES domain.airports,
+	to_airport_icao varchar(4) NOT NULL REFERENCES domain.airports,
 	distance_km numeric(8, 3) NOT NULL CHECK (distance_km > 0),
-	CHECK (from_airport_id <> to_airport_id)
+	CHECK (from_airport_icao <> to_airport_icao)
 );
-CREATE INDEX ON domain.routes (from_airport_id);
-CREATE INDEX ON domain.routes (to_airport_id);
+CREATE INDEX ON domain.routes (from_airport_icao);
+CREATE INDEX ON domain.routes (to_airport_icao);
 CREATE INDEX ON domain.routes (distance_km);
 
 CREATE TABLE domain.flights (
@@ -84,8 +84,43 @@ CREATE OR REPLACE VIEW domain.airport_aircrafts_count AS
     	ap.iata_code AS iata_code,
     	ap.airport_name AS airport_name,
     	count(*) AS planes_number
-    FROM domain.airports ap LEFT JOIN domain.aircrafts ac
-    	ON ap.icao_code = ac.base_airport
+    FROM domain.airports ap
+    LEFT JOIN domain.aircrafts ac ON ap.icao_code = ac.base_airport
     GROUP BY ap.iata_code, ap.airport_name
     ORDER BY planes_number DESC;
 
+CREATE OR REPLACE VIEW domain.aircraft_utilization AS
+    SELECT
+        concat(am.manufacturer, ' ', am.model_name) AS model,
+        count(f.flight_id) AS total_flights,
+        sum(f.passengers_number) AS total_passengers,
+        sum(f.load_kg) AS total_load
+    FROM domain.aircraft_models am
+    LEFT JOIN domain.aircrafts a ON am.model_id = a.model_id
+    LEFT JOIN domain.flights f ON a.aircraft_id = f.aircraft_id
+    GROUP BY am.manufacturer, am.model_name
+    ORDER BY total_flights DESC;
+
+CREATE OR REPLACE VIEW domain.job_positions_statistics AS
+    SELECT
+        job_position,
+        count(*) AS employees_count,
+        sum(salary) AS total_salaries,
+        avg(salary) AS average_salary
+    FROM domain.personnel
+    GROUP BY job_position
+    HAVING count(*) > 0
+    ORDER BY employees_count DESC;
+
+CREATE OR REPLACE VIEW domain.routes_statistics AS
+    SELECT
+        r.route_id,
+        r.from_airport_icao,
+        r.to_airport_icao,
+        count(f.flight_id) AS total_flights,
+        avg(f.passengers_number) AS average_passengers,
+        avg(f.load_kg) AS average_load_kg
+    FROM domain.routes r
+    LEFT JOIN domain.flights f ON r.route_id = f.route_id
+    GROUP BY r.route_id, r.from_airport_icao, r.to_airport_icao
+    ORDER BY total_flights DESC;

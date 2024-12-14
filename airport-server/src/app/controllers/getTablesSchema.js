@@ -12,7 +12,15 @@ const toSentenceCase = str => {
 };
 
 const prettifyString = str => {
-    return toSentenceCase(str.replace('_kg', ',_kg').replace('_km', ',_km')).replace('id', 'ID').replace('Iata', 'IATA').replace('Icao', 'ICAO');
+    return toSentenceCase(str
+        .replace('_kg', ',_kg')
+        .replace('_km', ',_km')
+    )
+        .replace('id', 'ID')
+        .replace('Iata', 'IATA')
+        .replace('Icao', 'ICAO')
+        .replace('iata', 'IATA')
+        .replace('icao', 'ICAO');
 };
 
 module.exports = async () => {

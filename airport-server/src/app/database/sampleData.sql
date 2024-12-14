@@ -1,4 +1,4 @@
-INSERT INTO domain.airports (icao_code, iata_code, airport_name, address, lat, lon)
+INSERT INTO domain.airports (icao_code, iata_code, airport_name, address, latitude, longitude)
 VALUES
 ('USII', 'IJK', 'Izhevsk Airport', 'Russian Federation, Udmurtian Republic, Zavyalovskiy rayon, Izhevsk Airport', 56.833333, 53.466667),
 ('UUEE', 'SVO', 'Sheremetyevo International Airport', 'Sheremetyevo Airport, Khimki, Moscow Region, 124340, Russia', 55.981744, 37.414244),
@@ -118,7 +118,7 @@ VALUES
 ('8535', '848357', '845887785982', 'Alexander', 'Nikolaev', 'Ivanovich', 'Steward', 207544.00, 'ULLI');
 
 
-INSERT INTO domain.routes (from_airport_id, to_airport_id, distance_km)
+INSERT INTO domain.routes (from_airport_icao, to_airport_icao, distance_km)
 VALUES
 ('UUEE', 'UWUU', 6900.267),
 ('USSS', 'UUWW', 2179.119),
