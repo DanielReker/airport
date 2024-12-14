@@ -24,6 +24,18 @@ const prettifyString = str => {
         .replace('icao', 'ICAO');
 };
 
+const getDataTypeFromDbType = (dbType) => {
+    const dbTypeToDataType = {
+        'numeric': 'number',
+        'integer': 'number',
+        'bigint': 'number',
+        'double precision': 'number',
+        'timestamp with time zone': 'dateTime',
+    };
+    if (dbType in dbTypeToDataType) return dbTypeToDataType[dbType];
+    else return 'string';
+};
+
 module.exports = async () => {
     const rawColumns = await knex.withSchema('information_schema').select(
         'columns.table_name',
@@ -57,7 +69,7 @@ module.exports = async () => {
             position: rawColumn['ordinal_position'],
             default: rawColumn['column_default'],
             isNullable: rawColumn['is_nullable'] === 'YES',
-            data_type: rawColumn['data_type'],
+            dataType: getDataTypeFromDbType(rawColumn['data_type']),
         };
     }
 

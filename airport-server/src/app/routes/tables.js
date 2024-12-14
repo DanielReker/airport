@@ -42,8 +42,8 @@ router.post('/:table', async (req, res) => {
     try {
         const tableName = req.params.table;
         const rowData = req.body;
-        await insertIntoTable(tableName, rowData);
-        res.status(200).json({ message: 'Ok' });
+        const inserted = await insertIntoTable(tableName, rowData);
+        res.status(200).json(inserted);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

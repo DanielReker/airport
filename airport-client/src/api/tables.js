@@ -23,25 +23,33 @@ export const getTable = async (tableName) => {
 };
 
 export const deleteFromTable = async (tableName, rowId) => {
-    await fetch(`${apiUrl}/tables/${tableName}/${rowId}`, { method: 'DELETE' });
+    const res = await fetch(`${apiUrl}/tables/${tableName}/${rowId}`, { method: 'DELETE' });
+    if (!res.ok)
+        throw new Error(res.statusText);
 };
 
 export const updateTable = async (tableName, rowId, rowData) => {
-    await fetch(`${apiUrl}/tables/${tableName}/${rowId}`, {
+    const res = await fetch(`${apiUrl}/tables/${tableName}/${rowId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(rowData),
     });
+    if (!res.ok)
+        throw new Error(res.statusText);
 };
 
 export const insertIntoTable = async (tableName, rowData) => {
-    await fetch(`${apiUrl}/tables/${tableName}`, {
+    const res = await fetch(`${apiUrl}/tables/${tableName}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(rowData),
     });
+    if (!res.ok)
+        throw new Error(res.statusText);
+
+    return res.json();
 };
