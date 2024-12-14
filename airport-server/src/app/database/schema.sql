@@ -9,6 +9,7 @@ CREATE TABLE domain.airports (
 	lat double precision,
 	lon double precision
 );
+CREATE INDEX ON domain.airports (airport_name);
 
 CREATE TABLE domain.aircraft_models (
 	model_id serial PRIMARY KEY,
@@ -19,7 +20,8 @@ CREATE TABLE domain.aircraft_models (
 	load_capacity_kg integer CHECK (load_capacity_kg > 0),
 	CONSTRAINT unique_model UNIQUE (manufacturer, model_name)
 );
-
+CREATE INDEX ON domain.aircraft_models (seats_number);
+CREATE INDEX ON domain.aircraft_models (load_capacity_kg);
 
 CREATE TABLE domain.aircrafts (
 	aircraft_id serial PRIMARY KEY,
@@ -27,6 +29,7 @@ CREATE TABLE domain.aircrafts (
 	base_airport varchar(4) REFERENCES domain.airports,
 	year_manufactured numeric(4) CHECK (year_manufactured > 1900 AND year_manufactured < 2100)
 );
+CREATE INDEX ON domain.aircrafts (model_id);
 
 CREATE TABLE domain.personnel (
 	passport_series varchar(4) CHECK (passport_series ~ '[0-9]{4}'),
@@ -40,6 +43,7 @@ CREATE TABLE domain.personnel (
 	airport_code varchar(4) NOT NULL REFERENCES domain.airports,
 	PRIMARY KEY (passport_series, passport_number)
 );
+CREATE INDEX ON domain.personnel (salary);
 
 CREATE TABLE domain.routes (
 	route_id serial PRIMARY KEY,
@@ -48,6 +52,9 @@ CREATE TABLE domain.routes (
 	distance_km numeric(8, 3) NOT NULL CHECK (distance_km > 0),
 	CHECK (from_airport_id <> to_airport_id)
 );
+CREATE INDEX ON domain.routes (from_airport_id);
+CREATE INDEX ON domain.routes (to_airport_id);
+CREATE INDEX ON domain.routes (distance_km);
 
 CREATE TABLE domain.flights (
 	flight_id serial PRIMARY KEY,
@@ -60,6 +67,8 @@ CREATE TABLE domain.flights (
 	passengers_number integer NOT NULL DEFAULT 0 CHECK (passengers_number >= 0),
 	load_kg integer CHECK (load_kg > 0)
 );
+CREATE INDEX ON domain.flights (scheduled_arrival_time);
+CREATE INDEX ON domain.flights (scheduled_departure_time);
 
 CREATE TABLE domain.flight_crews (
 	flight_id integer REFERENCES domain.flights,
@@ -79,3 +88,4 @@ CREATE OR REPLACE VIEW domain.airport_aircrafts_count AS
     	ON ap.icao_code = ac.base_airport
     GROUP BY ap.iata_code, ap.airport_name
     ORDER BY planes_number DESC;
+
