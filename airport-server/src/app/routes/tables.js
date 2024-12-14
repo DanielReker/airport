@@ -2,6 +2,9 @@ const router = require('express').Router();
 const resetDatabase = require('../controllers/resetDatabase');
 const getTablesSchema = require('../controllers/getTablesSchema');
 const getTable = require('../controllers/getTable');
+const insertIntoTable = require('../controllers/insertIntoTable');
+const deleteFromTable = require('../controllers/deleteFromTable');
+const updateTable = require('../controllers/updateTable');
 
 router.patch('/', async (req, res) => {
     try {
@@ -31,6 +34,40 @@ router.get('/:table', async (req, res) => {
         res.status(200).json(await getTable(tableName));
     } catch (err) {
         // TODO: Categorize errors
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/:table', async (req, res) => {
+    try {
+        const tableName = req.params.table;
+        const rowData = req.body;
+        await insertIntoTable(tableName, rowData);
+        res.status(200).json({ message: 'Ok' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.delete('/:table/:id', async (req, res) => {
+    try {
+        const tableName = req.params.table;
+        const rowId = req.params.id;
+        await deleteFromTable(tableName, rowId);
+        res.status(200).json({ message: 'Ok' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.put('/:table/:id', async (req, res) => {
+    try {
+        const tableName = req.params.table;
+        const rowId = req.params.id;
+        const rowData = req.body;
+        await updateTable(tableName, rowId, rowData);
+        res.status(200).json({ message: 'Ok' });
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });

@@ -26,8 +26,8 @@ CREATE INDEX ON domain.aircraft_models (load_capacity_kg);
 
 CREATE TABLE domain.aircrafts (
 	id serial PRIMARY KEY,
-	model_id integer NOT NULL REFERENCES domain.aircraft_models,
-	base_airport varchar(4) REFERENCES domain.airports,
+	model_id integer NOT NULL REFERENCES domain.aircraft_models ON UPDATE CASCADE ON DELETE CASCADE,
+	base_airport varchar(4) REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
 	year_manufactured numeric(4) CHECK (year_manufactured > 1900 AND year_manufactured < 2100)
 );
 CREATE INDEX ON domain.aircrafts (model_id);
@@ -42,15 +42,15 @@ CREATE TABLE domain.personnel (
 	patronymic text,
 	job_position text NOT NULL,
 	salary numeric(20, 2),
-	airport_code varchar(4) NOT NULL REFERENCES domain.airports,
+	airport_code varchar(4) NOT NULL REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY (passport_series, passport_number)
 );
 CREATE INDEX ON domain.personnel (salary);
 
 CREATE TABLE domain.routes (
 	id serial PRIMARY KEY,
-	from_airport_icao varchar(4) NOT NULL REFERENCES domain.airports,
-	to_airport_icao varchar(4) NOT NULL REFERENCES domain.airports,
+	from_airport_icao varchar(4) NOT NULL REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
+	to_airport_icao varchar(4) NOT NULL REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
 	distance_km numeric(8, 3) NOT NULL CHECK (distance_km > 0),
 	CHECK (from_airport_icao <> to_airport_icao)
 );
@@ -60,8 +60,8 @@ CREATE INDEX ON domain.routes (distance_km);
 
 CREATE TABLE domain.flights (
 	id serial PRIMARY KEY,
-	aircraft_id integer NOT NULL REFERENCES domain.aircrafts,
-	route_id integer NOT NULL REFERENCES domain.routes,
+	aircraft_id integer NOT NULL REFERENCES domain.aircrafts ON UPDATE CASCADE ON DELETE CASCADE,
+	route_id integer NOT NULL REFERENCES domain.routes ON UPDATE CASCADE ON DELETE CASCADE,
 	scheduled_departure_time timestamptz NOT NULL,
 	scheduled_arrival_time timestamptz NOT NULL,
 	actual_departure_time timestamptz,
@@ -74,11 +74,11 @@ CREATE INDEX ON domain.flights (scheduled_departure_time);
 
 CREATE TABLE domain.flight_crews (
 	id serial UNIQUE,
-	flight_id integer REFERENCES domain.flights,
+	flight_id integer REFERENCES domain.flights ON UPDATE CASCADE ON DELETE CASCADE,
 	passport_series varchar(4),
 	passport_number varchar(6),
 	FOREIGN KEY (passport_series, passport_number)
-		REFERENCES domain.personnel (passport_series, passport_number),
+		REFERENCES domain.personnel (passport_series, passport_number) ON UPDATE CASCADE ON DELETE CASCADE,
 	PRIMARY KEY (flight_id, passport_series, passport_number)
 );
 
