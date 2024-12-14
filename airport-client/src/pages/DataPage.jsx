@@ -1,27 +1,20 @@
-import {Box, MenuItem, Select, Typography} from "@mui/material";
+import {Box, MenuItem, Select} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 import {useState} from "react";
 import {DataGrid} from "@mui/x-data-grid";
+import {getTable, getTablesSchema} from "../api/tables.js";
 
 const DataPage = () => {
     const tables = useQuery({
-        queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/tables`);
-            return await response.json();
-        },
+        queryFn: getTablesSchema,
         queryKey: ['tables'],
-        //staleTime: Infinity,
     }).data || { airports: { name: "Airports", columns: {} } };
 
     const [ selectedTable, setSelectedTable ] = useState('airports');
 
     let tableData = useQuery({
-        queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/tables/${selectedTable}`);
-            return await response.json();
-        },
+        queryFn: () => getTable(selectedTable),
         queryKey: ['tableData', selectedTable],
-        //staleTime: Infinity,
     }).data || [];
 
     const tablesList = Object.keys(tables).map((key) => key);

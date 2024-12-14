@@ -1,22 +1,9 @@
 import React, {useState} from 'react';
-import {Box, Button, Checkbox, FormControlLabel, Paper, Typography} from "@mui/material";
+import {Button, Checkbox, FormControlLabel, Paper, Typography} from "@mui/material";
+import {resetDatabase} from "../api/tables.js";
 
 const ResetDatabaseForm = () => {
     const [ loadSampleData, setLoadSampleData ] = useState(false);
-
-    const resetDatabase = async (loadSampleData) => {
-        await fetch(`${import.meta.env.VITE_API_URL}/tables`, {
-            method: "PATCH",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'reset',
-
-                loadSampleData: loadSampleData
-            })
-        });
-    };
 
     return (
         <>
