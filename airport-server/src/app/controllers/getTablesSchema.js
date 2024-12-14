@@ -17,6 +17,7 @@ const prettifyString = str => {
         .replace('_km', ',_km')
     )
         .replace('id', 'ID')
+        .replace('Id', 'ID')
         .replace('Iata', 'IATA')
         .replace('Icao', 'ICAO')
         .replace('iata', 'IATA')
