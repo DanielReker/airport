@@ -10,7 +10,6 @@ import '@fontsource/roboto/700.css';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Layout from "./layouts/Layout.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
 import DataPage from "./pages/DataPage.jsx";
 
 
@@ -31,10 +30,6 @@ const router = createBrowserRouter([
                         Component: AdminPage,
                     }
                 ],
-            },
-            {
-                path: '/sign-in',
-                Component: LoginPage,
             }
         ],
     },
