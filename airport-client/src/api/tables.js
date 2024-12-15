@@ -2,7 +2,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 
 export const resetDatabase = async (loadSampleData) => {
-    await fetch(`${apiUrl}/tables`, {
+    const res = await fetch(`${apiUrl}/tables`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -12,6 +12,8 @@ export const resetDatabase = async (loadSampleData) => {
             loadSampleData: loadSampleData,
         }),
     });
+    if (!res.ok)
+        throw new Error(res.statusText);
 };
 
 export const getTablesSchema = async () => {

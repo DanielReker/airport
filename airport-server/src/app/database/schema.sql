@@ -51,8 +51,9 @@ CREATE TABLE domain.routes (
 	id serial PRIMARY KEY,
 	from_airport_icao varchar(4) NOT NULL REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
 	to_airport_icao varchar(4) NOT NULL REFERENCES domain.airports ON UPDATE CASCADE ON DELETE CASCADE,
-	distance_km numeric(8, 3) NOT NULL CHECK (distance_km > 0),
-	CHECK (from_airport_icao <> to_airport_icao)
+	distance_km numeric(8, 3) CHECK (distance_km > 0),
+	CHECK (from_airport_icao <> to_airport_icao),
+	UNIQUE (from_airport_icao, to_airport_icao)
 );
 CREATE INDEX ON domain.routes (from_airport_icao);
 CREATE INDEX ON domain.routes (to_airport_icao);
