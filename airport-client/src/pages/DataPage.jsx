@@ -1,4 +1,4 @@
-import {Box, Button, ListSubheader, MenuItem, Select} from "@mui/material";
+import {Box, Button, ListSubheader, MenuItem, Paper, Select} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 import {useEffect, useState} from "react";
 import {
@@ -233,7 +233,7 @@ const DataPage = () => {
 
 
     return (
-        <Box>
+        <Paper elevation={3} sx={{ p: 2 }}>
             <Select sx={{ mb: 2 }} value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)}>
                 {renderedTablesList}
                 {renderedViewsList}
@@ -251,7 +251,7 @@ const DataPage = () => {
                     toolbar: { setRows, setRowModesModel },
                 }}
             />
-        </Box>
+        </Paper>
     );
 };
 
