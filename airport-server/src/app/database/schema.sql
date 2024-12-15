@@ -7,8 +7,8 @@ CREATE TABLE domain.airports (
 	iata_code varchar(3) UNIQUE CHECK (iata_code ~ '[A-Z]{3}'),
 	airport_name text,
 	address text,
-	latitude NOT NULL double precision,
-	longitude NOT NULL double precision
+	latitude double precision NOT NULL,
+	longitude double precision NOT NULL
 );
 CREATE INDEX ON domain.airports (airport_name);
 
