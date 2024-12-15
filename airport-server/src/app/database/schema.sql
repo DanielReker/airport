@@ -131,3 +131,86 @@ CREATE OR REPLACE VIEW domain.routes_statistics AS
     LEFT JOIN domain.flights f ON r.id = f.route_id
     GROUP BY r.id, r.from_airport_icao, r.to_airport_icao
     ORDER BY total_flights DESC;
+
+
+
+CREATE OR REPLACE FUNCTION calculate_distance(
+    lat1 double precision, lon1 double precision,
+    lat2 double precision, lon2 double precision
+) RETURNS numeric AS $$
+DECLARE
+    earth_radius_km numeric := 6378.1370; -- Earth's radius in kilometers
+    dlat numeric := radians(lat2 - lat1);
+    dlon numeric := radians(lon2 - lon1);
+    a numeric;
+    c numeric;
+BEGIN
+    a := sin(dlat / 2)^2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)^2;
+    c := 2 * atan2(sqrt(a), sqrt(1 - a));
+    RETURN earth_radius_km * c;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+
+CREATE OR REPLACE FUNCTION update_route_distance()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE domain.routes
+    SET distance_km = calculate_distance(
+        NEW.latitude, NEW.longitude,
+        ap_to.latitude, ap_to.longitude
+    )
+    FROM domain.airports ap_to
+    WHERE domain.routes.from_airport_icao = NEW.icao_code
+      AND domain.routes.to_airport_icao = ap_to.icao_code;
+
+    UPDATE domain.routes
+    SET distance_km = calculate_distance(
+        ap_from.latitude, ap_from.longitude,
+        NEW.latitude, NEW.longitude
+    )
+    FROM domain.airports ap_from
+    WHERE domain.routes.to_airport_icao = NEW.icao_code
+      AND domain.routes.from_airport_icao = ap_from.icao_code;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER airport_coordinates_update
+AFTER UPDATE OF latitude, longitude ON domain.airports
+FOR EACH ROW
+EXECUTE FUNCTION update_route_distance();
+
+
+CREATE OR REPLACE FUNCTION calculate_new_route_distance()
+RETURNS TRIGGER AS $$
+DECLARE
+    lat1 double precision;
+    lon1 double precision;
+    lat2 double precision;
+    lon2 double precision;
+BEGIN
+    SELECT latitude, longitude INTO lat1, lon1
+    FROM domain.airports
+    WHERE icao_code = NEW.from_airport_icao;
+
+    SELECT latitude, longitude INTO lat2, lon2
+    FROM domain.airports
+    WHERE icao_code = NEW.to_airport_icao;
+
+    NEW.distance_km := calculate_distance(lat1, lon1, lat2, lon2);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER route_airports_update
+BEFORE UPDATE OF from_airport_icao, to_airport_icao ON domain.routes
+FOR EACH ROW
+EXECUTE FUNCTION calculate_new_route_distance();
+
+CREATE OR REPLACE TRIGGER route_insert_distance
+BEFORE INSERT ON domain.routes
+FOR EACH ROW
+EXECUTE FUNCTION calculate_new_route_distance();
+

@@ -145,6 +145,7 @@ const DataPage = () => {
                     severity: 'success',
                     autoHideDuration: 3000,
                 });
+                await refetchData();
                 return newRow;
             } catch (e) {
                 notifications.show(`Update failed: ${e.message}`, {
