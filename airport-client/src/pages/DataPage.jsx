@@ -1,4 +1,4 @@
-import {Box, Button, MenuItem, Select} from "@mui/material";
+import {Box, Button, ListSubheader, MenuItem, Select} from "@mui/material";
 import {useQuery} from "@tanstack/react-query";
 import {useEffect, useState} from "react";
 import {
@@ -67,8 +67,15 @@ const DataPage = () => {
     const [rowModesModel, setRowModesModel] = useState({});
 
     const tablesList = Object.keys(tables).map((key) => key);
-    const renderedTablesList = tablesList.map(table => <MenuItem key={table} value={table}>{tables[table]['printableName']}</MenuItem>);
-
+    let renderedViewsList = [ (<ListSubheader key={'views'}>Reports (views)</ListSubheader>) ]
+    let renderedTablesList = [ (<ListSubheader key={'tables'}>Tables</ListSubheader>) ]
+    for (let i in tablesList) {
+        const tableName = tablesList[i];
+        const table = tables[tableName];
+        const renderedItem = (<MenuItem key={tableName} value={tableName}>{table['printableName']}</MenuItem>);
+        if (table?.['type'] === 'table') renderedTablesList.push(renderedItem);
+        else renderedViewsList.push(renderedItem);
+    }
 
     const handleRowEditStop = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -228,6 +235,7 @@ const DataPage = () => {
         <Box>
             <Select sx={{ mb: 2 }} value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)}>
                 {renderedTablesList}
+                {renderedViewsList}
             </Select>
             <DataGrid
                 rows={rows}
